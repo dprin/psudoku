@@ -81,7 +81,7 @@ main {
 }
 
 .selected {
-    background-color: var(--selected-color);
+    background-color: var(--selected-color) !important;
 }
 
 .highlight {
