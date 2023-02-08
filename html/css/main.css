@@ -83,3 +83,7 @@ main {
 .selected {
     background-color: var(--selected-color);
 }
+
+.highlight {
+    background-color: lightblue;
+}

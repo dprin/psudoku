@@ -1,20 +1,3 @@
-
-/**
- * array of arrays which will hold each cell, 
- * starting from the top left corner of a square to the bottom right.
- */
-let board = [
-    [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-    [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-    [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-    [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-    [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-    [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-    [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-    [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-    [-1, -1, -1, -1, -1, -1, -1, -1, -1],  
-]
-
 let selected = {x: -1, y: -1};
 let hasIssue = () => {return wrong.x.length !== 0 || wrong.y.length !== 0 || wrong.block.length !== 0};
 let wrong = {x: [{x: -1, y: -1}], y:[{x: -1, y: -1}], block: [-1]}
@@ -38,6 +21,7 @@ const updateSelected = (clickedId: string) => {
     let y = parseInt(clickedId[2]);
 
     let selectedBox = selected.x.toString() + " " + selected.y.toString();
+    highlightRemove();
 
     if (selected.x !== -1 && selected.y !== -1) 
         document.getElementById(selectedBox)!.className = document.getElementById(selectedBox)!.className.replace(/ selected/g, '');
@@ -45,17 +29,17 @@ const updateSelected = (clickedId: string) => {
     if (x === selected.x && y === selected.y) {
         selected.x = -1;
         selected.y = -1;
+        highlightRemove();
     } else {
         selected.x = x;
         selected.y = y;
+        highlightSelected(document.getElementById(`${x} ${y}`)!.innerHTML);
 
         selectedBox = selected.x.toString() + " " + selected.y.toString();
 
         if (!document.getElementById(selectedBox)!.className.includes('selected'))
         document.getElementById(selectedBox)!.className += ' selected';
     }    
-   
-    console.log(selected);
 };
 
 window.onload = () => {
@@ -64,24 +48,66 @@ window.onload = () => {
     wrong.block = [];
     
     generateGrid();
+    gameGeneration(30);
 };
 
 document.addEventListener('keydown', (event) => {
     if (selected.x === -1 && selected.y === -1)
         return;
 
-    if (!event.key.match('([1-9])|Delete'))
+    if (!event.key.match('([1-9])|Delete|ArrowUp|ArrowDown|ArrowLeft|ArrowRight'))
         return;
     
     const selectedBox = selected.x.toString() + " " + selected.y.toString();
 
     if (event.key === 'Delete'){
         document.getElementById(selectedBox)!.innerHTML = '';
-    } else {
+    } else if (event.key.startsWith('Arrow')){ 
+        if (event.key === 'ArrowUp') {
+            if (selected.y < 3) {
+                if (selected.x < 3)
+                    return;
+
+                updateSelected(`${selected.x - 3} ${selected.y + 6}`)
+            } else {
+                updateSelected(`${selected.x} ${selected.y - 3}`);
+            }
+        } else if (event.key === 'ArrowDown') {
+            if (selected.y > 5) {
+                if (selected.x > 5)
+                    return;
+            
+                updateSelected(`${selected.x + 3} ${selected.y - 6}`)
+            } else {
+                updateSelected(`${selected.x} ${selected.y + 3}`);
+            }
+        } else if (event.key === 'ArrowLeft') {
+            if (selected.y % 3 === 0) {
+                if (selected.x % 3 === 0)
+                    return;
+                
+                updateSelected(`${selected.x - 1} ${selected.y + 2}`)
+            } else {
+                updateSelected(`${selected.x} ${selected.y - 1}`);
+            }
+        } else if (event.key === 'ArrowRight') {
+            if (selected.y % 3 === 2) {
+                if (selected.x % 3 === 2)
+                    return;
+
+
+                updateSelected(`${selected.x + 1} ${selected.y - 2}`)                    
+            } else {
+                updateSelected(`${selected.x} ${selected.y + 1}`);
+            }
+        }
+    }
+    else {
         document.getElementById(selectedBox)!.innerHTML = event.key.toString();
     }
 
     checkBoard(selected.x, selected.y);
+    updateWrongs();
 });
 
 const checkBoard = (x: number, y: number) => {
@@ -96,7 +122,6 @@ const checkBoard = (x: number, y: number) => {
 
         input?.forEach(char => {
             if (char) {
-                console.log(char)
                 if (numbers.includes(char)) {
                     wrong.block.push(value);
                 }
@@ -149,13 +174,9 @@ const checkBoard = (x: number, y: number) => {
                 }
             }
     })
-
-    updateWrongs();
 }
 
 const updateWrongs = () => {
-    console.log(wrong);
-
     document.querySelectorAll('.wrong').forEach(item => {
         item.className = item.className.replace(/ wrong/g, ''); 
     });
@@ -179,5 +200,48 @@ const updateWrongs = () => {
 
     wrong.block.forEach(value => {
         document.getElementById(value.toString())!.className += ' wrong';
+    })
+}
+
+const gameGeneration = (difficulty: number) => {
+    let occurances = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    for (let i = 0; i !== difficulty; i++){
+        do {
+            let randY = Math.floor(Math.random() * 9);
+            let randVal = -1;
+            do {
+                randVal = Math.floor(Math.random() * 9) + 1;
+            } while (occurances[randVal] > Math.floor(difficulty/9) + 1);
+
+            occurances[randVal - 1]++;
+
+            document.getElementById(`${i % 9} ${randY}`)!.innerHTML = randVal.toString();
+            checkBoard(i % 9, randY);
+            
+            if (hasIssue()){
+                document.getElementById(`${i % 9} ${randY}`)!.innerHTML = '';
+                occurances[randVal - 1]--;
+            }
+        } while (hasIssue());
+    }
+
+    console.log(occurances);
+
+}
+
+const highlightSelected = (selectedValue: string) => {
+    if (!selectedValue)
+        return;
+
+    document.querySelectorAll('.inner-square').forEach(item => {
+        if (item.innerHTML === selectedValue)
+            item.className += ' highlight';
+    })
+}
+
+const highlightRemove = () => {
+    document.querySelectorAll('.inner-square').forEach(item => {
+        item.className = item.className.replace(/ highlight/g, '');
     })
 }
