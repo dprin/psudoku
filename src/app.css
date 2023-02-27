@@ -1,0 +1,67 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color: #fff;
+  background-color: #262626;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+
+  background-color: #353535;
+
+  margin-bottom: 1rem;
+}
+
+header > * {
+  display: grid;
+  justify-content: center;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.block {
+  display: flex;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid white;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrong {
+	background-color: red !important;
+}
+
+.selected  {
+  background-color: darkorchid !important;
+}
+
+.highlight {
+	background-color: grey;
+}
+
+input, button, textarea, select {
+  font: inherit;
+  color: inherit;
+  background-color: inherit;
+  outline: none;
+}
